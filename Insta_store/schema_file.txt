@@ -1,0 +1,65 @@
+products [icon : storage] {
+  id serial pk
+  product_name varchar(50) not null
+  category varchar(50) 
+};
+
+thrifted_items [icon : storage] {
+  product_id int fk 
+  is_rare boolean
+  item_condition varchar(20)
+  size varchar(10)
+  color varchar(20)
+  price varchar(10)
+};
+
+handmade_items [icon : storage] {
+  product_id int fk 
+  item_condition varchar(20)
+  size varchar(10)
+  color varchar(20)
+  price varchar(10)
+};
+
+item_stocks [icon : storage] {
+  product_id int fk 
+  total_quantity int
+};
+
+customers [icon : users] {
+  id serial pk
+  name varchar(50)
+  product_id int fk
+};
+
+addresses [icon : users] {
+  id serial pk 
+  street varchar(100)
+  city varchar(50)
+  state varchar(50)
+  pincode varchar(20)
+  customer_id int fk
+};
+
+orders [icon : search] {
+  id serial pk
+  customer_id int fk
+  status varchar(20)
+  quantity int
+  created_at timestamp
+};
+
+payments [icon : money] {
+  id serial pk 
+  payment_type varchar(10)
+  payment_status varchar(20)
+  order_id int fk 
+};
+
+products.id - thrifted_items.product_id
+products.id - handmade_items.product_id
+products.id - item_stocks.product_id
+products.id < customers.product_id
+addresses.customer_id > customers.id
+customers.id < orders.customer_id
+payments.order_id - orders.id
