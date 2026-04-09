@@ -1,0 +1,50 @@
+visitors [icon : users] {
+  id serial pk
+  identification emum ('cosplayers', 'exhibitors', 'creators', 'vip', 'staff') not null
+}
+
+vehicles [icon : car] {
+  id serial pk
+  vehicle_number char(10) not null unique
+  vehicle_type enum ('ev', 'non ev') not null
+  visitor_id int UNIQUE fk // 1 to 1 with visitors
+}
+
+parkingspots [icon : parking] { 
+  id serial pk
+  parking_level char(10) unique not null 
+  parking_zones enum ('reserved', 'regular') not null
+  is_occupied boolean default false
+  vehicle_category enum ('2 wheeler', '4 wheeler') not null
+}
+
+parkingsessions [icon : watch] {
+  id serial pk,
+  vehicle_id int fk 
+  pakring_spot_id int fk
+  tickets_id int UNIQUE fk
+  entry_time timestamp
+  exit_time timestamp
+}
+
+parkingtickets [icon : ticket ] {
+  id serial pk
+  total_time int not null
+  amount decimal(10, 2)
+  payment_status enum ('paid', 'unpaid') not null
+  payment_id int UNIQUE fk // 1 to 1 with payments
+} 
+
+payments [icon : payment] {
+  id serial pk
+  payment_method enum ('UPI', 'CARD', 'CASH') not null
+  created_at timestamp
+  updated_at timestamp
+}
+
+// relationships
+visitors.id - vehicles.visitor_id 
+parkingsessions.pakring_spot_id > parkingspots.id
+parkingsessions.vehicle_id > vehicles.id
+parkingsessions.tickets_id - parkingtickets.id
+parkingtickets.payment_id - payments.id
