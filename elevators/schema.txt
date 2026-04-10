@@ -1,0 +1,76 @@
+buildings [icon: tower] {
+  id serial pk
+  building_name varchar(100) null
+  total_floors int not null
+}
+
+floors [] {
+  id serial pk
+  floor_no int not null
+  building_id int fk not null
+}
+
+elevator_shafts [] {
+  shaft_id serial pk
+  building_id int fk not null
+}
+
+shaft_floor_mappings [] {
+  shaft_id int fk not null
+  floor_id int fk not null
+  pk ('shaft_id', 'floor_id')
+}
+
+elevators [] {
+  id serial pk
+  elevator_no int not null
+  shaft_id int fk unique not null// 1:1 to shafts table
+  current_floor int 
+  direction enum ('up','down')
+  total_capacity int 
+}
+
+elevator_status [] {
+  id serial pk
+  elevator_id int fk not null,
+  status enum ('idle','moving','maintainance') not null
+  order_time timestamp default now()
+}
+
+maintenance_histories [icon : settings] {
+  id serial pk
+  repair_type varchar(50) not null
+  maintainance_status varchar(20) not null
+  maintainance_type enum ('elevator', 'shaft')
+}
+
+maintenance_trackings [icon:map] {
+  id serial pk
+  elevator_id int fk not null
+  shaft_id int fk not null
+  maintainance_history_id int fk not null
+}
+
+ride_assignments [] {
+  id serial pk
+  floor_id int fk not null
+  elevator_id int fk not null
+  request_time timestamp default now()
+  status enum ('pending','assigned', 'completed')
+}
+
+buildings.id < floors.building_id
+buildings.id < elevator_shafts.building_id
+elevator_shafts.shaft_id - elevators.shaft_id
+
+elevator_shafts.shaft_id < shaft_floor_mappings.shaft_id
+floors.id < shaft_floor_mappings.floor_id
+
+elevators.id < maintenance_trackings.elevator_id
+elevator_shafts.shaft_id < maintenance_trackings.shaft_id
+maintenance_histories.id < maintenance_trackings.maintainance_history_id
+
+ride_assignments.elevator_id > elevators.id
+ride_assignments.floor_id > floors.id
+
+elevator_status.elevator_id > elevators.id
